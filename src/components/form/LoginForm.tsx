@@ -1,23 +1,32 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Eye, EyeClosed } from "lucide-react";
 // import { loginSchema } from "@/validation";
 import { useState } from "react";
-import { Eye, EyeClosed } from "lucide-react";
+import { useGoogleOAuth, useLogin } from "@/hooks";
 import { loginSchema } from "@/validation/auth.validation";
-import { useLogin } from "@/hooks";
-import { useRouter } from "next/navigation";
-import { toast } from "../ui/toast";
+import { Button } from "../ui/button";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "../ui/field";
+import { Input } from "../ui/input";
 import { Spinner } from "../ui/spinner";
+import { toast } from "../ui/toast";
+import { useRouter } from "next/navigation";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const { mutate: login, isPending: loginPending } = useLogin();
-  const router = useRouter();
+  const { mutate: loginWithGoogle, isPending: googleLoginPending } =
+    useGoogleOAuth();
 
   const form = useForm({
     defaultValues: {
@@ -34,14 +43,14 @@ export default function LoginForm() {
       };
 
       login(loginData, {
-        onSuccess: (res) => {
+        onSuccess: () => {
           toast.add({
             title: "Login Success",
             description: "Welcome back",
             type: "success",
           });
           //  console.log(res)
-          // router.push("/");
+          router.push("/");
         },
         onError: (err) => {
           toast.add({
@@ -55,6 +64,49 @@ export default function LoginForm() {
       });
     },
   });
+
+  const handleGoogleSuccess = (credentialResponse: { credential?: string }) => {
+    const idToken = credentialResponse.credential;
+    if (!idToken) {
+      toast.add({
+        title: "Google login failure",
+        description: "Something went wrong. Please try again",
+        type: "error",
+      });
+      return;
+    }
+
+    loginWithGoogle(
+      { idToken: idToken },
+      {
+        onSuccess: () => {
+          toast.add({
+            title: "Login Success",
+            description: "Welcome back",
+            type: "success",
+          });
+          router.push("/");
+        },
+        onError: (err) => {
+          toast.add({
+            title: "Authorization failure",
+            description:
+              err.message || "Something went wrong. Please try again",
+            type: "error",
+          });
+          console.log(err);
+        },
+      },
+    );
+  };
+
+  const handleGoogleError = () => {
+    toast.add({
+      title: "Google login failure",
+      description: "Something went wrong. Please try again",
+      type: "error",
+    });
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -145,6 +197,16 @@ export default function LoginForm() {
           </Button>
         </FieldGroup>
       </form>
+
+      <FieldSeparator>Or continue with</FieldSeparator>
+
+      <GoogleLogin
+        shape="pill"
+        text="continue_with"
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+      />
+      {/* <GoogleLoginComponent /> */}
     </div>
   );
 }
