@@ -4,6 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useGetMe, useLogout } from "@/hooks";
+import { UserRole } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
@@ -13,27 +14,35 @@ export default function Header() {
     { name: "About us", url: "/about-us" },
   ];
 
+  const dashboardRoute: Record<UserRole, string> = {
+    SUPER_ADMIN: "/admin",
+    ADMIN: "/admin",
+    DOCTOR: "/doctor",
+    PATIENT: "/patient",
+  };
+
   const { data, isLoading } = useGetMe();
   const { mutate: logout } = useLogout();
   const queryClient = useQueryClient();
+
+  const role: UserRole = !!data?.data && data?.data.role;
 
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
         toast.add({
-          title: "Logout Success",
-          description: "You have been logged out",
+          title: "Tata",
+          description: "Logged out successfully",
           type: "success",
         });
         queryClient.removeQueries({ queryKey: ["user"] });
       },
-      onError: (err) => {
+      onError: () => {
         toast.add({
-          title: "Logout failure",
-          description: err.message || "Something went wrong. Please try again",
+          title: "Logout failed",
+          description: "Something Went Wrong",
           type: "error",
         });
-        console.log(err);
       },
     });
   };
@@ -52,6 +61,8 @@ export default function Header() {
               {route.name}
             </Link>
           ))}
+
+          {role && <Link href={dashboardRoute[role]}>Dashboard</Link>}
         </nav>
         <div>
           {!isLoading && !data && (

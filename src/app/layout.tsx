@@ -5,6 +5,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "@/providers";
 import { Toaster } from "@/components/ui/toast";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const robotoSlabHeading = Roboto_Slab({
   subsets: ["latin"],
@@ -43,8 +44,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       )}
     >
       <Providers>
-        <body className="min-h-full flex flex-col">{children}</body>
-        <Toaster />
+        <TooltipProvider>
+          <body className="min-h-full flex flex-col">{children}</body>
+          <Toaster />
+        </TooltipProvider>
       </Providers>
     </html>
   );

@@ -52,7 +52,7 @@ export function RegisterForm() {
         },
       };
 
-    //   console.log("Registration Data:", registrationData);
+      //   console.log("Registration Data:", registrationData);
 
       registration(registrationData, {
         onSuccess: (res) => {
@@ -69,9 +69,9 @@ export function RegisterForm() {
             description: "Please verify your account",
             type: "success",
           });
-          router.push("/");
-        //   const params = new URLSearchParams({ email: registrationData.email });
-        //   router.push(`/verify-email?${params.toString()}`);
+          // router.push("/");
+          const params = new URLSearchParams({ email: registrationData.email });
+          router.push(`/register/verify-account?${params.toString()}`);
         },
         onError: (err) => {
           toast.add({

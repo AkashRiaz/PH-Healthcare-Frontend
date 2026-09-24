@@ -5,11 +5,18 @@ import {
   userLogin,
   userLogout,
   userRegistration,
+  verifyAccount,
 } from "@/api";
 
 export function useLogin() {
   return useMutation({
     mutationFn: userLogin,
+  });
+}
+
+export function useVerifyAccount() {
+  return useMutation({
+    mutationFn: verifyAccount,
   });
 }
 
