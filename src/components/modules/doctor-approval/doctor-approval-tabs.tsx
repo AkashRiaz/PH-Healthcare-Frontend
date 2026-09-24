@@ -7,6 +7,8 @@ import { Suspense, useState } from "react";
 import DoctorApprovalTableLoading from "./doctor-approval-table-loading";
 import DoctorReviewSheet from "./doctor-review-sheet";
 import { DoctorParams, DoctorVerificationStatus } from "@/types";
+import useDebounce from "@/hooks/debounce.hook";
+import TablePagination from "@/components/ui/table-pagination";
 
 const verificationStatus: ["ALL" | DoctorVerificationStatus, string][] = [
   ["APPROVED", "Approved"],
@@ -18,18 +20,31 @@ const verificationStatus: ["ALL" | DoctorVerificationStatus, string][] = [
 export default function DoctorApprovalTabs() {
   const [tab, setTab] = useState<"ALL" | DoctorVerificationStatus>("ALL");
   const [selectedId, setSelectedId] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
+
+  const debouncedSearchInput = useDebounce(searchInput, 500);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+    setPage(1);
+  };
 
   const queryParams: DoctorParams = {
-    page: 1,
-    limit: 10,
+    page: page,
+    limit: 2,
     ...(tab === "ALL" ? {} : { verificationStatus: tab }),
+    ...(debouncedSearchInput ? { searchTerm: debouncedSearchInput } : {}),
   };
 
   return (
     <>
       <div className="flex justify-between my-5">
         <div>
-          <Input type="search" placeholder="Search by name or email" />
+          <Input
+            onChange={(e) => handleSearch(e)}
+            type="search"
+            placeholder="Search by name or email"
+          />
         </div>
         <Tabs value={tab} onValueChange={(value) => setTab(value)}>
           <TabsList>
@@ -43,7 +58,11 @@ export default function DoctorApprovalTabs() {
       </div>
 
       <Suspense fallback={<DoctorApprovalTableLoading />}>
-        <DoctorApprovalTable {...queryParams} handleReview={setSelectedId} />
+        <DoctorApprovalTable
+          {...queryParams}
+          handleReview={setSelectedId}
+          handlePageChange={setPage}
+        />
       </Suspense>
 
       <DoctorReviewSheet
