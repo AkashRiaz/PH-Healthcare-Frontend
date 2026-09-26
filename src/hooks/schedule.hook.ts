@@ -1,5 +1,5 @@
 
-import { createSchedule, getMySchedules } from "@/api/schedule.api";
+import { createSchedule, deleteSchedule, getMySchedules, publishSchedule } from "@/api";
 import { ScheduleParams } from "@/types";
 import {
   useMutation,
@@ -30,5 +30,27 @@ export function useSuspenseMySchedules(params: ScheduleParams) {
   return useSuspenseQuery({
     queryKey: ["schedules", params],
     queryFn: () => getMySchedules(params),
+  });
+}
+
+export function usePublishSchedule() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: publishSchedule,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
+  });
+}
+
+export function useDeleteSchedule() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteSchedule,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
   });
 }

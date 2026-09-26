@@ -10,7 +10,7 @@ export const patientRoutes = [
       },
       {
         title: "Payment History",
-        url: `${prefix}`,
+        url: `${prefix}/my-appointments`,
       },
     ],
   },

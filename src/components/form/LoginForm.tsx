@@ -34,9 +34,10 @@ export default function LoginForm() {
     //   email: "testeradmin@gmail.com",
     //   password: "Tester@admin12345",
     // },
+    // drmir@gmail.com: "VDaT4Y8M<
        defaultValues: {
-      email: "munmun05210@gmail.com",
-      password: ".vL5kr?qT6",
+      email: "drmir@gmail.com",
+      password: '"VDaT4Y8M<',
     },
     validators: {
       onSubmit: loginSchema,

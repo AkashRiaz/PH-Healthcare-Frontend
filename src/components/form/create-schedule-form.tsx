@@ -6,12 +6,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { toast } from "../ui/toast";
+import { useCreateSchedule } from "@/hooks";
 import { scheduleSchema } from "@/validation";
-import { useCreateSchedule } from "@/hooks/schedule.hook";
-// import { useCreateSchedule } from "@/hooks";
-// import { scheduleSchema } from "@/validation";
+import { Spinner } from "../ui/spinner";
 
-export default function CreateScheduleForm() {
+export default function CreateScheduleForm({
+  handleClose,
+}: {
+  handleClose: () => void;
+}) {
   const { mutate: create, isPending } = useCreateSchedule();
 
   const form = useForm({
@@ -33,33 +36,33 @@ export default function CreateScheduleForm() {
         meetingLink: value.meetingLink,
       };
 
-      console.log(scheduleValue);
-
-      // create(scheduleValue, {
-      //   onSuccess: (res) => {
-      //     if (!res.success) {
-      //       toast.add({
-      //         title: "Server Failure",
-      //         description: "Something went wrong. Please try again",
-      //         type: "error",
-      //       });
-      //       return;
-      //     }
-      //     toast.add({
-      //       title: "Schedule Created",
-      //       description: "Your schedule is saved as a draft",
-      //       type: "success",
-      //     });
-      //   },
-      //   onError: (err) => {
-      //     toast.add({
-      //       title: "Schedule creation failed",
-      //       description:
-      //         err.message || "Something went wrong. Please try again",
-      //       type: "error",
-      //     });
-      //   },
-      // });
+      create(scheduleValue, {
+        onSuccess: (res) => {
+          if (!res.success) {
+            toast.add({
+              title: "Server Failure",
+              description: "Something went wrong. Please try again",
+              type: "error",
+            });
+            return;
+          }
+          toast.add({
+            title: "Schedule Created",
+            description: "Your schedule is saved as a draft",
+            type: "success",
+          });
+          handleClose();
+        },
+        onError: (err) => {
+          toast.add({
+            title: "Schedule creation failed",
+            description:
+              err.message || "Something went wrong. Please try again",
+            type: "error",
+          });
+          handleClose();
+        },
+      });
     },
   });
 
@@ -79,19 +82,18 @@ export default function CreateScheduleForm() {
               ? new Date(`${field.state.value}T00:00:00`)
               : undefined;
 
-            console.log({ selected });
-
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={field.name}>Date</FieldLabel>
                 <Popover>
                   <PopoverTrigger render={<Button variant="outline" />}>
-                    Select Date
+                    {selected ? `${format(selected, "PPP")}` : "Select Date"}
                   </PopoverTrigger>
-                  <PopoverContent>
+                  <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
                       selected={selected}
+                      disabled={{ before: new Date() }}
                       onSelect={(date) => {
                         if (date) {
                           field.handleChange(format(date, "yyyy-MM-dd"));
@@ -176,7 +178,15 @@ export default function CreateScheduleForm() {
           }}
         </form.Field>
 
-        <Button type="submit">"Submit"</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? (
+            <>
+              <Spinner /> Submitting
+            </>
+          ) : (
+            "Submit"
+          )}
+        </Button>
       </FieldGroup>
     </form>
   );

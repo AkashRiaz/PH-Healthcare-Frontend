@@ -21,7 +21,7 @@ export default function ScheduleDetailSheet({
   onClose,
 }: Props) {
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="right">
         <SheetHeader>
           <SheetTitle>Schedule details</SheetTitle>
@@ -31,7 +31,7 @@ export default function ScheduleDetailSheet({
             })}
           </SheetDescription>
         </SheetHeader>
-        <dl className="mt-4 flex flex-col gap-3 text-sm">
+        <dl className="mt-4 flex flex-col gap-3 text-sm mx-3">
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Start</dt>
             <dd>
